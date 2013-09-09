@@ -85,7 +85,8 @@ sub ask_which_email() {
 			username    => $$emails[$current_email]->{email},
 			password    => $$emails[$current_email]->{passwd},
 			server_name => $$emails[$current_email]->{server},
-			folder      => '/INBOX'
+			folder      => '/INBOX',
+			access      => 'rw',
 		);
 	}
 }
@@ -137,7 +138,11 @@ sub menu($) {
 			$HEADER . "h/H       :" . $ENDC. " to view the header.\n".
 			$HEADER . "s/S file  :" . $ENDC. " to save the whole message to the file.\n".
 			$HEADER . "sh/Sh file:" . $ENDC. " to save the header of the message to the file.\n".
-			$HEADER . "sc/Sc file:" . $ENDC. " to save the content of the message to the file.\n".
+			$HEADER . "sc/Sc file:" . $ENDC. " to save the content of the message to the file.\n";
+			if ( $read_unread == 0 ) {
+				print  $HEADER . "x/X       :" . $ENDC. " to mark as read.\n";
+			}
+			print 
 			$HEADER . "m/M       :" . $ENDC. " to return to the message menu.\n".
 			$HEADER . "q/Q       :" . $ENDC. " to exit.\n";
 	}
@@ -159,6 +164,7 @@ sub mail_interaction($) {
 		}
 		elsif ( $choice eq 'h' || $choice eq 'H') {
 			print $unread[$working_on]->head();
+			print "\n";
 		}
 		elsif ($choice =~ /s .+/i) {
 			@spl = split / /,$choice;
@@ -183,6 +189,9 @@ sub mail_interaction($) {
 			print $unread[$working_on]->body();
 			close OUT;
 			select STDOUT;
+		}
+		elsif ( ($choice eq 'x' || $choice eq 'X' )&& $read_unread== 0 ) {
+			$unread[$working_on]->label('seen',1);
 		}
 		elsif ( $choice eq 'm' || $choice eq 'M') {
 			return;
